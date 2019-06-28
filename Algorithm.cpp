@@ -383,8 +383,7 @@ void Algorithm::findWay()
               {
                 case 'N':
                 {
-                  this -> rightTurn();
-                  this -> rightTurn();
+                  this -> halfTurn();
                 } break;
                 case 'E':
                 {
@@ -412,8 +411,8 @@ void Algorithm::findWay()
                 } break;
                 case 'W':
                 {
-                  this -> rightTurn();
-                  this -> rightTurn();
+                this -> halfTurn();
+
                 } break;
                 case 'S':
                 {
@@ -431,8 +430,8 @@ void Algorithm::findWay()
                     } break;
                     case 'E':
                     {
-                      this -> rightTurn();
-                      this -> rightTurn();
+                      this -> halfTurn();
+
                     } break;
                     case 'W':
                     {
@@ -460,8 +459,7 @@ void Algorithm::findWay()
                       } break;
                       case 'S':
                       {
-                        this -> rightTurn();
-                        this -> rightTurn();
+                   this -> halfTurn();
                       } break;
                     }
                 }
@@ -474,8 +472,7 @@ void Algorithm::findWay()
                 {
                   case 'N':
                   {
-                    this -> rightTurn();
-                    this -> rightTurn();
+                  this -> halfTurn();
                     this -> forwardAlg();
                   } break;
                   case 'E':
@@ -509,8 +506,7 @@ void Algorithm::findWay()
                   } break;
                   case 'W':
                   {
-                    this -> rightTurn();
-                    this -> rightTurn();
+                    this -> halfTurn();
                     this -> forwardAlg();
                   } break;
                   case 'S':
@@ -531,8 +527,7 @@ void Algorithm::findWay()
                       } break;
                       case 'E':
                       {
-                        this -> rightTurn();
-                        this -> rightTurn();
+                        this -> halfTurn();
                         this -> forwardAlg();
                       } break;
                       case 'W':
@@ -565,9 +560,8 @@ void Algorithm::findWay()
                           this -> forwardAlg();
                         } break;
                         case 'S':
-                        {
-                          this -> rightTurn();
-                          this -> rightTurn();
+                        {                  
+                          this -> halfTurn();
                           this -> forwardAlg();
                         } break;
                       }
@@ -587,48 +581,60 @@ void Algorithm::forwardAlg()
   int crash=0;
   uint8_t tam = 0;
   int maxTam=0;
+  int dIn = sensors.getDistanceOf(3);
+  sensors.motors.bumperControl=false;
+
+ /* if(dIn<18)
+  return; */
   
-  sensors.motors.setBase(220);
+  sensors.motors.setBase(230);
   
 while(sensors.motors.rightCount<newTic)
 {
  sensors.motors.avanzar(sensors.motors.de, sensors.getDistanceOf(1), sensors.getDistanceOf(2), bb);
 
-if(sensors.motors.rightCount<(newTic * 0.60))
+      if(sensors.motors.rightCount<(newTic * 0.60))
        {
+        
         if(digitalRead(sensors.motors.pin1)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueDer(sensors.motors.de, 65);
             sensors.motors.rightCount=0;
           }
           if(digitalRead(sensors.motors.pin3)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueIzq(sensors.motors.de, 65);
             sensors.motors.rightCount=0;
           }
         if(digitalRead(sensors.motors.pin5)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueIzq(sensors.motors.de, 40);
             sensors.motors.rightCount=0;
           }
         if(digitalRead(sensors.motors.pin4)==HIGH)
           {
+            crash++;
+            if(crash==4)return;
             sensors.motors.choqueDer(sensors.motors.de, 40);
             sensors.motors.rightCount=0;
-            crash++;
           }
         if(digitalRead(sensors.motors.pin2)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueDer(sensors.motors.de, 20);
             sensors.motors.rightCount=0;
           }
         if(digitalRead(sensors.motors.pin6)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueIzq(sensors.motors.de, 20);
             sensors.motors.rightCount=0;
           }
@@ -656,17 +662,18 @@ sensors.motors.bumperControl=true;
 if(tam>=maxTam)
 maxTam = tam;
 else if (fT){
-newTic= newTic+maxTam*50;
+newTic= newTic+maxTam*70;
 fT=false;
 }
 
 }
- if(crash>3)
- return; 
+
 }
 sensors.motors.detenerse();
+sensors.motors.checar();
+delay(50);
 sensors.checkDistances();
-sensors.motors.setBase(155);
+sensors.motors.setBase(sensors.motors.velInicial);
 }
 void Algorithm::moveForward(bool &perfect)
 {  
@@ -679,6 +686,12 @@ void Algorithm::moveForward(bool &perfect)
    uint8_t tam = 0 ;
    int newTic = sensors.motors.tic1;
    sensors.motors.bT=false;
+   bool vieneDeBumper=false;
+   if( sensors.motors.bumperControl)
+   vieneDeBumper=true;
+   else
+   vieneDeBumper=false;
+   
    sensors.motors.bumperControl=false;
    bool fT = true;
    int aux;
@@ -688,20 +701,28 @@ void Algorithm::moveForward(bool &perfect)
    bool heatV = false;
    bool trueRamp = false;
    negroCount  = 0;
-   
+   bool band = false;  
   
-if(sensors.motors.bumper(tam))
+if(sensors.motors.bumper(tam) || vieneDeBumper)
 {
   fT=false;
-  newTic+=tam*50;
+  newTic+=tam*150;
+  
+  if(sensors.motors.bumper(tam))
   sensors.motors.bumperControl=true;
+  
   maxTam=tam;
-  sensors.motors.setBase(210);
+  sensors.motors.setBase(240);
+  band=true;
+  //robot.tile[robot.x][robot.y][robot.z].bumper(1);
+     digitalWrite(37,HIGH);
+
   //ACTUAL
 }
-else
-  sensors.motors.setBase(155);
-
+else{
+  sensors.motors.setBase(sensors.motors.velInicial);
+     digitalWrite(37,LOW);
+}
 
 if(visualVictim())
 visualV=true;
@@ -713,10 +734,17 @@ heatV=true;
     {
 
       //sensors.motors.escribirLetraLCD(camaraChar);
+      if(band)
+      {
+        if(sensors.motors.rightCount >  newTic*0.2)
+         sensors.motors.setBase(195);
+        else if(sensors.motors.rightCount > newTic*0.4)
+          sensors.motors.setBase(sensors.motors.velInicial);
+      }
       
       sensors.motors.avanzar(sensors.motors.de, sensors.getDistanceOf(1), sensors.getDistanceOf(2), bb);
-      blackSquare = sensors.motors.cuadroNegro();
-      (blackSquare) ? digitalWrite(37, HIGH) : digitalWrite(37, LOW);
+      //blackSquare = sensors.motors.cuadroNegro();
+      //(blackSquare) ? digitalWrite(37, HIGH) : digitalWrite(37, LOW);
       value = sensors.motors.rampa(sensors.motors.de);
 
       bool s =true;
@@ -727,6 +755,8 @@ s=true;
 else if(value==2)
 s=false;
 
+unsigned long mm = millis();
+
       while(sensors.motors.condRampa(s))
       {
        sensors.motors.avanzar(sensors.motors.de, sensors.getDistanceOf(1), sensors.getDistanceOf(2), bb);
@@ -735,16 +765,20 @@ s=false;
         trueRamp=true;
         else
         trueRamp=false;
+
+       if(millis()>(mm+6000))
+       sensors.motors.setBase(sensors.motors.velInicial+66);
+       
       }
 
 if(trueRamp){
 unsigned long te = millis();
 
-while(millis()<(te+150))
+while(millis()<(te+370))
 sensors.motors.avanzar(sensors.motors.de, sensors.getDistanceOf(1), sensors.getDistanceOf(2), bb);
 
 sensors.motors.detenerse();
-sensors.motors.setBase(155);
+sensors.motors.setBase(sensors.motors.velInicial);
 sensors.motors.girosX=3;
 
 //sensors.motors.actualizaSetPoint(sensors.motors.de);
@@ -752,7 +786,16 @@ sensors.motors.girosX=3;
 
 //sensors.motors.actualizaSetPointY();
 
-  robot.tile[robot.x][robot.y][robot.z].ramp(1);
+  if(value == 1)
+  {
+    robot.tile[robot.x][robot.y][robot.z].upRamp(1);
+    robot.tile[robot.x][robot.y][robot.z].downRamp(1);
+  }
+  else if(value == 2)
+  {
+    robot.tile[robot.x][robot.y][robot.z].downRamp(1);
+    robot.tile[robot.x][robot.y][robot.z].upRamp(1);
+  }
 
         switch(robot.getDirection())
         {
@@ -766,20 +809,46 @@ sensors.motors.girosX=3;
           break;
         }
 
-        (robot.z == 0) ? robot.z = 1 : robot.z = 0;
+        if(value == 1)
+          robot.z++;
+        else if(value == 2)
+          robot.z--;
 
+        if(robot.z == -1)
+          robot.dataTransferDownFloor();
+        else if(robot.z == 4)
+          robot.dataTransferUpFloor();
+          
+      if(value == 1)
+      {
         switch(robot.getDirection())
         {
-          case 'N': robot.tile[robot.x-1][robot.y][robot.z].ramp(1);
+          case 'N': robot.tile[robot.x-1][robot.y][robot.z].upRamp(1);
           break;
-          case 'E': robot.tile[robot.x][robot.y+1][robot.z].ramp(1);
+          case 'E': robot.tile[robot.x][robot.y+1][robot.z].upRamp(1);
           break;
-          case 'W': robot.tile[robot.x][robot.y-1][robot.z].ramp(1);
+          case 'W': robot.tile[robot.x][robot.y-1][robot.z].upRamp(1);
           break;
-          case 'S': robot.tile[robot.x+1][robot.y][robot.z].ramp(1);
+          case 'S': robot.tile[robot.x+1][robot.y][robot.z].upRamp(1);
           break;
         }
       }
+      else if(value == 2)
+      {
+        switch(robot.getDirection())
+        {
+          case 'N': robot.tile[robot.x-1][robot.y][robot.z].downRamp(1);
+          break;
+          case 'E': robot.tile[robot.x][robot.y+1][robot.z].downRamp(1);
+          break;
+          case 'W': robot.tile[robot.x][robot.y-1][robot.z].downRamp(1);
+          break;
+          case 'S': robot.tile[robot.x+1][robot.y][robot.z].downRamp(1);
+          break;
+        }
+      }
+      
+}
 }
     if(!heatV)
      {
@@ -796,39 +865,46 @@ sensors.motors.girosX=3;
      
       if(sensors.motors.rightCount<(newTic * 0.60))
        {
+        
         if(digitalRead(sensors.motors.pin1)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueDer(sensors.motors.de, 65);
             sensors.motors.rightCount=0;
           }
           if(digitalRead(sensors.motors.pin3)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueIzq(sensors.motors.de, 65);
             sensors.motors.rightCount=0;
           }
         if(digitalRead(sensors.motors.pin5)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueIzq(sensors.motors.de, 40);
             sensors.motors.rightCount=0;
           }
         if(digitalRead(sensors.motors.pin4)==HIGH)
           {
+            crash++;
+            if(crash==4)return;
             sensors.motors.choqueDer(sensors.motors.de, 40);
             sensors.motors.rightCount=0;
-            crash++;
           }
         if(digitalRead(sensors.motors.pin2)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueDer(sensors.motors.de, 20);
             sensors.motors.rightCount=0;
           }
         if(digitalRead(sensors.motors.pin6)==HIGH)
           {
             crash++;
+            if(crash==4)return;
             sensors.motors.choqueIzq(sensors.motors.de, 20);
             sensors.motors.rightCount=0;
           }
@@ -847,7 +923,7 @@ if(!sensors.motors.bumperControl)
 if(sensors.motors.bumper(tam)){
 sensors.motors.bumperControl=true;
 maxTam=tam;
-if(sensors.motors.rightCount<newTic/2)
+/*if(sensors.motors.rightCount<newTic/2)
 robot.tile[robot.x][robot.y][robot.z].bumper(1);
 else
   switch(robot.getDirection())
@@ -860,7 +936,7 @@ else
       break;
     case 'S': robot.tile[robot.x+1][robot.y][robot.z].bumper(1);
       break;
-  }
+  }*/
 }
 }
 else if(fT)
@@ -870,24 +946,25 @@ sensors.motors.bumperControl=true;
 if(tam>=maxTam)
 maxTam = tam;
 else if (fT){
-newTic= newTic+maxTam*50;
+newTic= newTic+maxTam*70;
 fT=false;
 }
 
 }
 
-
-if(crash>3){  //la cagaste
-sensors.motors.detenerse();
-//perfect=false;
-return;
-}
 }
   sensors.motors.detenerse();
   sensors.motors.checar();
+  delay(200);
 
-  if(sensors.motors.bumperControl)
+  if(sensors.motors.bumperControl || vieneDeBumper)
+   { 
     sensors.acomodo(diE,diA);
+     digitalWrite(37,HIGH);
+   }
+   else
+     digitalWrite(37,LOW);
+
   
   sensors.checkDistances();
 }
@@ -913,6 +990,9 @@ void Algorithm::rightTurn()
     }
     else
       sensors.motors.girosX++;
+        
+      sensors.checkDistances();
+
 }
 
 void Algorithm::leftTurn()
@@ -933,4 +1013,27 @@ void Algorithm::leftTurn()
       }
     else
       sensors.motors.girosX++;
+
+        sensors.checkDistances();
+}
+void Algorithm::halfTurn()
+{
+  robot.changeDirection(1,robot.getDirection());
+  robot.changeDirection(1,robot.getDirection());
+  
+  int n =   sensors.motors.de+180;
+  n= n%360;
+  sensors.motors.de=n;
+  
+    sensors.motors.giro(sensors.motors.de);
+    sensors.motors.detenerse();
+    delay(155);
+
+    sensors.motors.checar();
+
+    if(sensors.getDistanceOf(4) <= 21 && !sensors.motors.bumperControl)
+      {
+      sensors.motors.atrasSN();
+      sensors.motors.girosX=0;
+      } 
 }
