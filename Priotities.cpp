@@ -611,14 +611,14 @@ void Priotities::changeCoordinates(char dir)
       break;
     }
 
- /* if(x == -1)
+  if(x == -1)
     this -> dataTransferUp();
   else if(x == 15)
     this -> dataTransferDown();
   else if(y == -1)
     this -> dataTransferLeft();
   else if(y == 15)
-    this -> dataTransferRight();*/
+    this -> dataTransferRight();
 }
 
 void Priotities::correction(char dir)
@@ -666,15 +666,19 @@ void Priotities::correction(char dir)
 
 void Priotities::dataTransferUp()
 {
-   for(int i = -1; i < 15; i++)
-   {
-     for(int j = 0; j < 15; j++)
-     {
-       tile[i+1][j][z].setInf1(tile[i][j][z].getInf1());
-       tile[i+1][j][z].setInf2(tile[i][j][z].getInf2());
-     }
-   }
+  Bit newTile;
 
+  for(int i = 14; i >= 0; i--)
+  {
+    for(int j = 14; j >= 0; j--)
+    {
+      if(i+1 != 15)
+        tile[i+1][j][z] = tile[i][j][z];
+      if(i == 0)
+        tile[0][j][z] = newTile;
+    }
+  }
+   
    x = 0;
    startX++;
 
@@ -702,17 +706,21 @@ void Priotities::dataTransferUp()
 
 void Priotities::dataTransferDown()
 {
-  for(int i = 0; i < 16; i++)
-   {
-     for(int j = 0; j < 15; j++)
-     {
-       tile[i-1][j][z].setInf1(tile[i][j][z].getInf1());
-       tile[i-1][j][z].setInf2(tile[i][j][z].getInf2());
-     }
-   }
+  Bit newTile;
+  
+  for(int i = 0; i < 15; i++)
+  {
+    for(int j = 0; j < 15; j++)
+    {
+      if(i-1 != -1)
+        tile[i-1][j][z] = tile[i][j][z];
+      if(i == 14)
+        tile[14][j][z] = newTile;
+    }
+  }
 
    x = 14;
-   startX --;
+   startX--;
 
    if(z == 0)
    {
@@ -738,14 +746,18 @@ void Priotities::dataTransferDown()
 
 void Priotities::dataTransferRight()
 {
+  Bit newTile;
+  
   for(int i = 0; i < 15; i++)
-   {
-     for(int j = 0; j < 16; j++)
-     {
-       tile[i][j-1][z].setInf1(tile[i][j][z].getInf1());
-       tile[i][j-1][z].setInf2(tile[i][j][z].getInf2());
-     }
-   }
+  {
+    for(int j = 0; j < 15; j++)
+    {
+      if(j-1 != -1)
+        tile[i][j-1][z] = tile[i][j][z];
+      if(j == 14)
+        tile[i][14][z] = newTile;
+    }
+  }
 
    y = 14;
    startY--;
@@ -774,17 +786,21 @@ void Priotities::dataTransferRight()
 
 void Priotities::dataTransferLeft()
 {
-  for(int i = 0; i < 15; i++)
-   {
-     for(int j = -1; j < 15; j++)
-     {
-       tile[i][j+1][z].setInf1(tile[i][j][z].getInf1());
-       tile[i][j+1][z].setInf2(tile[i][j][z].getInf2());
-     }
-   }
+  Bit newTile;
+  
+  for(int i = 14; i >= 0; i--)
+  {
+    for(int j = 14; j >= 0; j--)
+    {
+      if(j+1 != 15)
+        tile[i][j+1][z] = tile[i][j][z];
+      if(j == 0)
+        tile[i][0][z] = newTile;
+    }
+  }
 
    y = 0;
-   startY ++;
+   startY++;
 
    if(z == 0)
    {
@@ -810,14 +826,18 @@ void Priotities::dataTransferLeft()
 
 void Priotities::dataTransferUpFloor()
 {
+  Bit newTile;
+  
   for(int i = 0; i < 15; i++)
    {
      for(int j = 0; j < 15; j++)
      {
-       for(int k = 0; k < 5; z++)
+       for(int k = 0; k < 4; k++)
        {
-         tile[i][j][k-1].setInf1(tile[i][j][k].getInf1());
-         tile[i][j][k-1].setInf2(tile[i][j][k].getInf2());
+         if(k-1 != -1)
+          tile[i][j][k-1] = tile[i][j][k];
+         if(k == 3)
+          tile[i][j][3] = newTile;
        }
      }
    }
@@ -840,14 +860,19 @@ void Priotities::dataTransferUpFloor()
 
 void Priotities::dataTransferDownFloor()
 {
+
+  Bit newTile;
+  
   for(int i = 0; i < 15; i++)
    {
      for(int j = 0; j < 15; j++)
      {
-       for(int k = -1; k < 4; z++)
+       for(int k = 3; k >= 0; k--)
        {
-         tile[i][j][k+1].setInf1(tile[i][j][k].getInf1());
-         tile[i][j][k+1].setInf2(tile[i][j][k].getInf2());
+        if(k+1 != 4)
+          tile[i][j][k+1] = tile[i][j][k];
+        if(k == 0)
+          tile[i][j][0] = newTile;
        }
      }
    }
@@ -867,4 +892,3 @@ void Priotities::dataTransferDownFloor()
    fourthCount = thirdCount;
    firstCount = 0;
 }
-
