@@ -14,6 +14,16 @@ void SenseMap::setup()
   pinMode(37, OUTPUT);
   pinMode(38, OUTPUT);
   pinMode(39, OUTPUT);
+
+    motors.escribirNumLCD(getDistanceOf(3));
+    delay(300);
+    motors.escribirNumLCD(getDistanceOf(2));
+    delay(300);
+    motors.escribirNumLCD(getDistanceOf(1));
+    delay(300);
+    motors.escribirNumLCD(getDistanceOf(4));
+    delay(300);
+    
   firstTemperature=(temperatureCelcius(mlxRight)+temperatureCelcius(mlxLeft))/2;
 }
 
@@ -60,9 +70,17 @@ float SenseMap::temperatureCelcius(int mlx)
 
 void SenseMap::checkDistances()
 {
-  if(this -> getDistanceOf(3) >= 7.3 && this -> getDistanceOf(3) <= 14)
+motors.setBase(motors.velInicial);
+
+int d1 = this -> getDistanceOf(3);
+int pp;
+if (motors.bumperControl)
+pp=18;
+else
+pp=14;
+
+  if(d1 >= 7 && d1 <= pp)
   {  
-    motors.setBase(115);
     unsigned long tempoo = millis();
     
     while(this -> getDistanceOf(3) >= 7.3)
@@ -74,28 +92,24 @@ void SenseMap::checkDistances()
     }
     
   motors.detenerse();
-  motors.setBase(155);
   }
-  else if(this -> getDistanceOf(3) < 5 && this -> getDistanceOf(3) != 0)
+  else if(d1 <= 5 || d1>350)
   {
     unsigned long ter = millis();
-    motors.setBase(100);
     
-    while(this -> getDistanceOf(3) <= 4)
+    while(this -> getDistanceOf(3) <= 5 || getDistanceOf(3)>350)
     {
       motors.atrasPID(motors.de);
-      if(millis()>(ter+300))
+      if(millis()>(ter+200))
       break;
     }
     motors.detenerse();
-    motors.setBase(155);
   }
   
-  float disss = this -> getDistanceOf(3);
+  int disss = this -> getDistanceOf(3);
   
-  if(disss >= 27 && disss <= 43) //36
+  if(disss >= 27 && disss <= 42) //36
   {
-    motors.setBase(110);
     unsigned long terr = millis();
     
     if(disss >= 31 && disss <= 38)
@@ -105,7 +119,7 @@ void SenseMap::checkDistances()
       while(this -> getDistanceOf(3) > 38)
       {
         motors.avanzar(motors.de,30,30,motors.bD);
-        if(millis() > (terr + 300))
+        if(millis() > (terr + 200))
           break;
       }
       
@@ -123,7 +137,6 @@ void SenseMap::checkDistances()
      motors.detenerse();
     }
     
-     motors.setBase(155);
   }
 }
 
@@ -145,7 +158,8 @@ unsigned long nlp = millis();
 int k = teMamaste(m,pos);
   
     if(k!=0){
-    motors.setBase(100);
+    motors.setBase(motors.velInicial);
+
     while(k!=0)
     {
       k=teMamaste(m,pos);
@@ -154,21 +168,17 @@ int k = teMamaste(m,pos);
       motors.avanzar(motors.de,30,30,motors.bD);
       else if(k==2)
       {
-   motors.setBase(155);
    motors.detenerse();
    return;
       }
 
       if(millis()>(nlp+650))
       {
-   motors.setBase(155);
    motors.detenerse();
    return;
       }
     }
-    
-   motors.setBase(155);
-   motors.detenerse();
+ motors.detenerse();
    }
 }
 int SenseMap::teMamaste(double disI, char pos)
@@ -211,4 +221,3 @@ void SenseMap::blinkLeds()
     digitalWrite(39, LOW);
   }
 }
-
