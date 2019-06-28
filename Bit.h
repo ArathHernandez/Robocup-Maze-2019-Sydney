@@ -17,10 +17,10 @@ class Bit {
     bool checkpoint();
     bool visited();
     uint8_t flo0r();
-    bool ramp();
+    bool downRamp();
     bool pending();
     bool exist();
-    bool start();
+    bool upRamp();
     bool bumper();
 
     void up(const bool &b, Bit *theTop);
@@ -32,9 +32,9 @@ class Bit {
     void checkpoint(const bool &b);
     void visited(const bool &b);
     void flo0r(const int &i);
-    void ramp(const bool &b);
+    void downRamp(const bool &b);
     void exist(const bool &b);
-    void start(const bool &b);
+    void upRamp(const bool &b);
     void pending(const bool &b);
     void bumper(const bool &b);
 
@@ -50,4 +50,3 @@ class Bit {
 };
 
 #endif
-
