@@ -10,7 +10,7 @@ int valorT;
 int bD1=0;
 
 //derecho
-double base =155;
+double base = 152;
 double kp=5.43;//2.23
 double ki=0.15;//0.08;
 double kd=0.56;//0.56;
@@ -18,7 +18,7 @@ long int errorPass=0;
 double errorD=0;
 double errorAnt=0;
 double error=0;
-
+int limit = 65;
 
 
 
@@ -47,14 +47,14 @@ VL53L0X sensor;
 
   #define HIGH_ACCURACY
 
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X);
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_154MS, TCS34725_GAIN_1X);
 
 
 bool Control::desalineao(double anguloA, double deseado)
 {
   if(deseado==0)
   {
-    double nA = anguloA>=155?anguloA:(360+anguloA);
+    double nA = anguloA>=180?anguloA:(360+anguloA);
 
     if(nA>(360-b) && nA<(360+b))
       return 0;
@@ -117,7 +117,7 @@ return anguloA;
 void Control::actualizaSetPoint(double d)
 {
 double a =getAnguloActual();
-if(d==0 && a>=155)
+if(d==0 && a>=180)
 {
 setPointBNO=setPointBNO-(360-a);
 }
@@ -158,8 +158,11 @@ double Control::y()
 bool Control::condRampa(bool s)
 {
   if(s){
-  if(y()>-4)
-  return false;
+  if(y()>-3)
+  { 
+    limit=65;
+    return false;
+  }
   else 
   return true;
 }
@@ -178,7 +181,8 @@ int Control::rampa(double d)
 if(y()<-320 && y()>-335)
 {
   
-base=170;
+base=150;
+limit=120;
 /*
 lcd.setCursor(0,0);
 lcd.print("Subiendo");
@@ -199,7 +203,7 @@ detenerse();
 bumperControl=false;
 return 1;
 }
-else if(y()<-12 && y()>-35)
+else if(y()<-4 && y()>-35)
 {
 base=100;
 /*
@@ -223,12 +227,13 @@ return 2;
 }
 else
 return 0;
+
 }
 
 bool Control::bumper(uint8_t &x)
 {
 double val = y();
-if((val<-357 && val>-340) || (val<-3 && val>-15))
+if((val<-358 && val>-340) || (val<-2.7 && val>-15))
 {
   
 if((val<-358 && val>-355) || (val<-2 && val>-5))
@@ -393,7 +398,7 @@ double a = getAnguloActual();
 double equis =0;
 if (d > a){
     equis = d - a;
-    if(equis<155){
+    if(equis<180){
 giroD(v);
 right=true;
 }
@@ -405,7 +410,7 @@ right=false;
 else{
     equis = a-d;
 
-    if (equis<155){
+    if (equis<180){
      giroI(v);
      right=false;
 }
@@ -512,7 +517,7 @@ double equis =0;
 if (d > a){
     equis = d - a;
 
-    if(equis<155)
+    if(equis<180)
 giroDer(d);
     else
 giroIzq(d);
@@ -521,7 +526,7 @@ giroIzq(d);
 else{
     equis = a-d;
 
-    if (equis<155)
+    if (equis<180)
      giroIzq(d);
     else
      giroDer(d);
@@ -547,7 +552,7 @@ anguloA=getAnguloActual();
   if(CambioTiempo >= TiempoMuestreo)
   {
     //calculo error
-    if(deseado==0 && anguloA>=155)
+    if(deseado==0 && anguloA>=180)
     {
       error=360-anguloA;
     }
@@ -622,6 +627,10 @@ dif=0;
 boost+=dif;
 }
 */
+if(dIzq==357)
+dIzq=2;
+if(dDer==357)
+dDer=2;
 
 if(dIzq>=2 && dIzq<=5){
 boost+=(50-dIzq*3);
@@ -669,10 +678,10 @@ pwmDerecha=255;
 if(pwmIzquierda>255)
 pwmIzquierda=255;
 
-if(pwmDerecha<60)
-  pwmDerecha=60;
-if(pwmIzquierda<60)
-pwmIzquierda=60;
+if(pwmDerecha<limit)
+  pwmDerecha=limit;
+if(pwmIzquierda<limit)
+pwmIzquierda=limit;
 
             digitalWrite(motorIzqAde2, LOW);
             analogWrite(motorIzqAde1, pwmIzquierda);
@@ -707,7 +716,7 @@ anguloA=getAnguloActual();
   if(CambioTiempo >= TiempoMuestreo)
   {
     //calculo error
-    if(deseado==0 && anguloA>=155)
+    if(deseado==0 && anguloA>=180)
     {
       error=360-anguloA;
     }
@@ -778,14 +787,14 @@ analogWrite(motorDerAtras1, base+7);
 void Control::atrasSN()
 {
   girosX=0;
-  this -> setBase(155);
+  this -> setBase(velInicial);
   this -> atrasPID(de);
   delay(600);
   this -> detenerse();
   delay(50);
   this -> actualizaSetPoint(de);
   delay(100);
-  this -> setBase(155);
+  this -> setBase(velInicial);
   
   rightCount=0;
   
@@ -871,7 +880,7 @@ void Control::tcaselect(int i)
   Wire.write(1 << i);
   Wire.endTransmission();
 
-//delay(10);
+delay(20);
 
 }
 
@@ -889,7 +898,7 @@ void Control::atras1()
   delay(50);
   this -> actualizaSetPoint(de);
   delay(100);
-  this -> setBase(155);
+  this -> setBase(velInicial);
   
   rightCount=0;
   while(rightCount<tic/5)
@@ -1000,18 +1009,16 @@ analogWrite(motorDerAtras1, 255);
 bool Control::cuadroNegro()
 {
   tcaselect(1);
-
   int r, g, b;
 
   tcs.getRawData(&r, &g, &b);
-  delay(100);
 
-Serial.println(r);
+/*Serial.println(r);
 Serial.println(g);
 Serial.println(b);
-Serial.println(" ");
+Serial.println(" ");*/
 
-if(r<700 && g<700 && b<700)
+if(r<200 && g<200 && b<200)
 return true;
 else
 return false;
