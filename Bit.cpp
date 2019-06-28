@@ -49,7 +49,7 @@ uint8_t Bit::flo0r() {
   return 0;
 }
 
-bool Bit::ramp() {
+bool Bit::downRamp() {
   return inf2 & '\x10';
 }
 
@@ -57,7 +57,7 @@ bool Bit::exist() {
   return inf2 & '\x8';
 }
 
-bool Bit::start() {
+bool Bit::upRamp() {
   return inf2 & '\x4';
 }
 
@@ -86,7 +86,7 @@ void Bit::visited(const bool &b) {
   inf1 |= b;
 }
 
-void Bit::start(const bool &b) {
+void Bit::upRamp(const bool &b) {
   inf2 |= (b<<2);
 }
 
@@ -98,7 +98,7 @@ void Bit::bumper(const bool &b) {
   inf2 |= b;
 }
 
-void Bit::ramp(const bool &b) {
+void Bit::downRamp(const bool &b) {
   inf2 |= (b<<4);
 }
 
@@ -171,4 +171,3 @@ void Bit::setInf2(char info)
 {
   inf2 = info;
 }
-
