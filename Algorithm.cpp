@@ -714,7 +714,7 @@ if(sensors.motors.bumper(tam) || vieneDeBumper)
   maxTam=tam;
   sensors.motors.setBase(240);
   band=true;
-  //robot.tile[robot.x][robot.y][robot.z].bumper(1);
+  robot.tile[robot.x][robot.y][robot.z].bumper(1);
      digitalWrite(37,HIGH);
 
   //ACTUAL
@@ -923,9 +923,10 @@ if(!sensors.motors.bumperControl)
 if(sensors.motors.bumper(tam)){
 sensors.motors.bumperControl=true;
 maxTam=tam;
-/*if(sensors.motors.rightCount<newTic/2)
+if(sensors.motors.rightCount<newTic/2)
 robot.tile[robot.x][robot.y][robot.z].bumper(1);
 else
+{
   switch(robot.getDirection())
   {
     case 'N': robot.tile[robot.x-1][robot.y][robot.z].bumper(1);
@@ -936,7 +937,8 @@ else
       break;
     case 'S': robot.tile[robot.x+1][robot.y][robot.z].bumper(1);
       break;
-  }*/
+  }
+}
 }
 }
 else if(fT)
