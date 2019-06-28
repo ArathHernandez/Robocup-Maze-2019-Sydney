@@ -97,6 +97,7 @@ class Control {
       int girosX = 0;
       bool bumperControl = false;
       bool bT = false;
+      double velInicial=152;
 };
 
 
