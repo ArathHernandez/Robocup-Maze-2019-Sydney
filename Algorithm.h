@@ -15,7 +15,7 @@ class Algorithm
   public: 
 
     Algorithm();
-    Priotities robot{7, 7, 0, 'N'};
+    Priotities robot{7, 7, 1, 'N'};
     SenseMap sensors;
 
     char camaraChar = '0';
@@ -41,6 +41,7 @@ class Algorithm
     void setup();
     void forwardAlg();
     bool visualVictim1();
+    void halfTurn();
 
     bool blackSquare = false;
     int negroCount = 0;
@@ -58,4 +59,3 @@ class Algorithm
 };
 
 #endif
-
