@@ -7,22 +7,10 @@ void Movement::moveOn()
 {
   bool perfect = true;
   
-/*  if(maze.sensors.getDistanceOf(3) <= 20)
-  {
-    maze.robot.correction(maze.robot.getDirection());
-    this -> conditionOne();
-  }
-  else
-  {*/
-     maze.sensors.motors.escribirNumLCD(maze.sensors.getDistanceOf(3));
-    delay(1000);
-    maze.sensors.motors.escribirNumLCD(maze.sensors.getDistanceOf(2));
-    delay(1000);
-    maze.sensors.motors.escribirNumLCD(maze.sensors.getDistanceOf(1));
-    delay(1000);
-    
-    maze.moveForward(perfect);
-    delay(270);
+
+   maze.moveForward(perfect);
+/*   
+    */
     this -> isBlack();
   //}
 }
@@ -56,8 +44,15 @@ void Movement::responseNoBlack()
   delay(1500);*/
   //maze.sensors.motors.escribirLetraLCD(maze.robot.getDirection());
   ////delay(500);
+
+  dF = maze.sensors.getDistanceOf(3);
+  delay(10);
+  dD = maze.sensors.getDistanceOf(2);
+  delay(10);
+  dI = maze.sensors.getDistanceOf(1);
+  delay(10);
   
-  maze.robot.changeSquare(&maze.robot.tile[maze.robot.x][maze.robot.y][maze.robot.z], maze.sensors.getDistanceOf(2), maze.sensors.getDistanceOf(1), maze.sensors.getDistanceOf(3), maze.robot.getDirection());
+  maze.robot.changeSquare(&maze.robot.tile[maze.robot.x][maze.robot.y][maze.robot.z], dD, dI, dF, maze.robot.getDirection());
   
   //maze.sensors.motors.escribirNumLCD(maze.robot.x);
   //delay(500);
@@ -74,6 +69,9 @@ void Movement::responseNoBlack()
 
  // maze.sensors.motors.printLoc(maze.robot.x,maze.robot.y,maze.robot.z);
  //delay(500);
+
+// maze.sensors.motors.printLoc(maze.robot.x,maze.robot.y,maze.robot.z);
+ //delay(1000);
  
   maze.robot.changeStatus(&maze.robot.tile[maze.robot.x][maze.robot.y][maze.robot.z], maze.robot.getDirection());
 
@@ -215,20 +213,66 @@ void Movement::conditionFour()
     yA = maze.robot.startY;
     zA = maze.robot.startZ;
     endOfRound = true;
+    decision = false;
 
-    if(maze.robot.z > zA)
+    for(int i = 0; i < 15; i++)
     {
-      for(int i = 0; i < 15; i++)
+      for(int j = 0; j < 15; j++)
       {
-        for(int j = 0; j < 15; j++)
+        if(maze.robot.tile[i][j][maze.robot.z].upRamp() && !maze.robot.tile[i][j][maze.robot.z].downRamp())
         {
-          if(maze.robot.tile[i][j][maze.robot.z].ramp())
+          xA = i;
+          yA = j;
+          endOfRound = false;
+          i = 16;
+          j = 16;
+          decision = true;
+        }
+        else if(maze.robot.tile[i][j][maze.robot.z].downRamp() && !maze.robot.tile[i][j][maze.robot.z].upRamp())
+        {
+          xA = i;
+          yA = j;
+          endOfRound = false;
+          i = 16;
+          j = 16;
+          decision = true;
+        }
+      }
+    }
+
+    if(maze.robot.z != zA && !decision)
+    {
+      if(maze.robot.z < zA)
+      {
+        for(int i = 0; i < 15; i++)
+        {
+          for(int j = 0; j < 15; j++)
           {
-            xA = i;
-            yA = j;
-            endOfRound = false;
-            i = 16;
-            j = 16;
+            if(maze.robot.tile[i][j][maze.robot.z].downRamp())
+            {
+              xA = i;
+              yA = j;
+              endOfRound = false;
+              i = 16;
+              j = 16;
+            }
+          }
+        }
+      }
+      else if(maze.robot.z > zA)
+      {
+        for(int i = 0; i < 15; i++)
+        {
+          for(int j = 0; j < 15; j++)
+          {
+            if(maze.robot.tile[i][j][maze.robot.z].upRamp())
+            {
+              xA = i;
+              yA = j;
+              endOfRound = false;
+              i = 16;
+              j = 16;
+            }
           }
         }
       }
@@ -243,6 +287,25 @@ void Movement::conditionFour()
   //delay(1000);
   //maze.sensors.motors.escribirNumLCD(yA);
   //delay(1000);
+
+/*maze.sensors.motors.escribirNumLCD(xA);
+ delay(500);
+  maze.sensors.motors.escribirNumLCD(yA);
+ delay(500);
+ maze.sensors.motors.escribirNumLCD(zA);
+ delay(500);*/
+
+ if(xA == maze.robot.x && yA == maze.robot.y && zA == maze.robot.z)
+ {
+  endOfRound = true;
+ }
+ else if(xA == maze.robot.x && yA == maze.robot.y && zA != maze.robot.z)
+ {
+  maze.halfTurn();
+  endOfRound = false;
+ }
+ else
+ {
 
   maze.clear(xA, yA);
   maze.startBfs();
@@ -271,5 +334,6 @@ void Movement::conditionFour()
           maze.robot.y = yA;
         } break;
     }
+ }
+ 
 }
-
