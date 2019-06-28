@@ -28,7 +28,8 @@ class Movement
 
    int countPendings = 0;
    bool black;
+   bool decision = false;
+   int dF, dD, dI;
 };
 
 #endif 
-
